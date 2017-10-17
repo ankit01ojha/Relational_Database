@@ -15,7 +15,7 @@ def deleteMatches():
     """Remove all the match records from the database."""
     db = connect()
     cur = db.cursor()
-    cur.execute("delete from matches")
+    cur.execute("delete from matches ;")
     db.commit()
     db.close()
 
@@ -24,7 +24,7 @@ def deletePlayers():
     """Remove all the player records from the database."""
     db  = connect()
     cur = db.cursor()
-    cur.execute("delete from information")
+    cur.execute("delete from information ;")
     db.commit()
     db.close()
 
@@ -32,7 +32,7 @@ def countPlayers():
     """Returns the number of players currently registered."""
     db  =connect()
     cur = db.cursor()
-    cur.execute("select count(*) from information")
+    cur.execute("select count(*) from information ;")
     count = cur.fetchone()[0]
     db.commit()
     db.close()
@@ -50,7 +50,7 @@ def registerPlayer(name):
     """
     db =connect()
     cur = db.cursor()
-    cur.execute("insert into information(name) values (%s) ;", (name,))
+    cur.execute("insert into information(name) values (%s)", (name,))
     db.commit()
     db.close()
 
@@ -70,7 +70,14 @@ def playerStandings():
     """
     db = connect()
     cur = db.cursor()
-    cur.execute("select id, name, wins, matches from matches order by score ;")
+    cur.execute("select * from score ;")
+    results = cur.fetchall()
+    if (results[0][2]==results[1][2]):
+        cur.execute("select id, name from score order by (matches_played - cast(wins as decimal)) desc ;" )
+        results = cur.fetchall()
+    db.commit()
+    db.close()
+    return results
 
 def reportMatch(winner, loser):
     """Records the outcome of a single match between two players.
@@ -79,7 +86,11 @@ def reportMatch(winner, loser):
       winner:  the id number of the player who won
       loser:  the id number of the player who lost
     """
- 
+    db=connect()
+    cur = db.cursor()
+    cur.execute("insert into matches(winner,loser) values (%s,%s)",(winner,loser,))
+    db.commit()
+    db.close()
  
 def swissPairings():
     """Returns a list of pairs of players for the next round of a match.
